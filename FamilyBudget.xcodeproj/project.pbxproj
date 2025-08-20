@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		8459A2512E5419F80060C14E /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 8459A2502E5419F80060C14E /* ComposableArchitecture */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		8459A22C2E5417C50060C14E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -33,7 +37,7 @@
 		8459A23D2E5417C50060C14E /* Exceptions for "FamilyBudget" folder in "FamilyBudget" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Info.plist,
+				Config/Info.plist,
 			);
 			target = 8459A2162E5417C20060C14E /* FamilyBudget */;
 		};
@@ -65,6 +69,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8459A2512E5419F80060C14E /* ComposableArchitecture in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -115,6 +120,7 @@
 				8459A2132E5417C20060C14E /* Sources */,
 				8459A2142E5417C20060C14E /* Frameworks */,
 				8459A2152E5417C20060C14E /* Resources */,
+				8459A2A92E541BEF0060C14E /* SwiftLint */,
 			);
 			buildRules = (
 			);
@@ -125,6 +131,7 @@
 			);
 			name = FamilyBudget;
 			packageProductDependencies = (
+				8459A2502E5419F80060C14E /* ComposableArchitecture */,
 			);
 			productName = FamilyBudget;
 			productReference = 8459A2172E5417C20060C14E /* FamilyBudget.app */;
@@ -208,6 +215,10 @@
 			);
 			mainGroup = 8459A20E2E5417C20060C14E;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				8459A24F2E5419F80060C14E /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
+				8459A2A82E541BA20060C14E /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 8459A2182E5417C20060C14E /* Products */;
 			projectDirPath = "";
@@ -243,6 +254,28 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		8459A2A92E541BEF0060C14E /* SwiftLint */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = SwiftLint;
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if which swiftlint >/dev/null; then\n  swiftlint\nelse\n  echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		8459A2132E5417C20060C14E /* Sources */ = {
@@ -287,12 +320,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = FamilyBudget/FamilyBudget.entitlements;
+				CODE_SIGN_ENTITLEMENTS = FamilyBudget/Config/FamilyBudget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = FamilyBudget/Info.plist;
+				INFOPLIST_FILE = FamilyBudget/Config/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -316,12 +350,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = FamilyBudget/FamilyBudget.entitlements;
+				CODE_SIGN_ENTITLEMENTS = FamilyBudget/Config/FamilyBudget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = FamilyBudget/Info.plist;
+				INFOPLIST_FILE = FamilyBudget/Config/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -567,6 +602,33 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		8459A24F2E5419F80060C14E /* XCRemoteSwiftPackageReference "swift-composable-architecture" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pointfreeco/swift-composable-architecture";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.21.1;
+			};
+		};
+		8459A2A82E541BA20060C14E /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SimplyDanny/SwiftLintPlugins";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.59.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		8459A2502E5419F80060C14E /* ComposableArchitecture */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8459A24F2E5419F80060C14E /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;
+			productName = ComposableArchitecture;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 8459A20F2E5417C20060C14E /* Project object */;
 }
