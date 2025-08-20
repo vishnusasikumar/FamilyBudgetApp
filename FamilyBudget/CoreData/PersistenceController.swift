@@ -6,51 +6,70 @@
 //
 
 import CoreData
+import SwiftUI
+
+enum StorageChoice: String {
+    case privateICloud
+    case sharedICloud
+
+    var containerIdentifier: String {
+        switch self {
+        case .privateICloud: return "iCloud.com.vvs.FamilyBudget.Private"
+        case .sharedICloud: return "iCloud.com.vvs.FamilyBudget.Shared"
+        }
+    }
+}
 
 struct PersistenceController {
-    static let shared = PersistenceController()
 
+    let container: NSPersistentCloudKitContainer
+
+    // MARK: - Preview
     static let preview: PersistenceController = {
-        let result = PersistenceController(inMemory: true)
-        let viewContext = result.container.viewContext
+        let controller = PersistenceController(containerIdentifier: StorageChoice.privateICloud.containerIdentifier)
+        let viewContext = controller.container.viewContext
+
         for _ in 0..<10 {
             let newItem = Entry(context: viewContext)
             newItem.date = Date()
         }
+
         do {
             try viewContext.save()
         } catch {
-            // Replace this implementation with code to handle the error appropriately.
-            // fatalError() causes the application to generate a crash log and terminate.
-            // You should not use this function in a shipping application, although it may be useful during development.
             let nsError = error as NSError
             fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
         }
-        return result
+
+        return controller
     }()
 
-    let container: NSPersistentCloudKitContainer
-
-    init(inMemory: Bool = false) {
+    // MARK: - Initialization
+    init(containerIdentifier: String) {
         container = NSPersistentCloudKitContainer(name: "FamilyBudget")
-        if inMemory {
-            container.persistentStoreDescriptions.first!.url = URL(fileURLWithPath: "/dev/null")
-        }
-        guard let description = container.persistentStoreDescriptions.first else {
+
+        guard let storeDescription = container.persistentStoreDescriptions.first else {
             fatalError("Missing persistent store description")
         }
-        description.cloudKitContainerOptions = NSPersistentCloudKitContainerOptions(
-            containerIdentifier: "iCloud.com.vvs.FamilyBudget"
+
+        storeDescription.cloudKitContainerOptions = NSPersistentCloudKitContainerOptions(
+            containerIdentifier: containerIdentifier
         )
-        description.setOption(true as NSNumber, forKey: NSPersistentHistoryTrackingKey)
-        description.setOption(true as NSNumber, forKey: NSPersistentStoreRemoteChangeNotificationPostOptionKey)
+        storeDescription.setOption(true as NSNumber, forKey: NSPersistentHistoryTrackingKey)
+        storeDescription.setOption(true as NSNumber, forKey: NSPersistentStoreRemoteChangeNotificationPostOptionKey)
 
         container.loadPersistentStores { _, error in
             if let error = error as NSError? {
-                fatalError("Unresolved error: \(error), \(error.userInfo)")
+                fatalError("Unresolved error loading persistent store: \(error), \(error.userInfo)")
             }
         }
+
         container.viewContext.automaticallyMergesChangesFromParent = true
         container.viewContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
+    }
+
+    // MARK: - Default Container
+    static func defaultContainer(for choice: StorageChoice) -> NSPersistentCloudKitContainer {
+        PersistenceController(containerIdentifier: choice.containerIdentifier).container
     }
 }

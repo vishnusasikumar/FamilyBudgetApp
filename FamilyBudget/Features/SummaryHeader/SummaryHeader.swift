@@ -10,9 +10,10 @@ import CoreData
 
 struct SummaryHeader: View {
     var monthID: NSManagedObjectID
+    @Environment(\.managedObjectContext) private var viewContext
 
     var body: some View {
-        if let month = try? PersistenceController.shared.container.viewContext.existingObject(with: monthID) as? BudgetMonth {
+        if let month = try? viewContext.existingObject(with: monthID) as? BudgetMonth {
 
             // Precompute values before rendering
             let currencyCode = Locale.current.currency?.identifier ?? "USD"

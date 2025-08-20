@@ -11,19 +11,54 @@ import CoreData
 
 @main
 struct FamilyBudgetApp: App {
-    // Build persistence and dependency environment
-    let persistence = PersistenceController.shared
-    let store = Store(
-        initialState: AppFeature.State(),
-        reducer: {
-            AppFeature()
-        }
-    )
+    @AppStorage("selectedStorageChoice") private var selectedStorageChoiceRaw: String?
+    @State private var container: NSPersistentCloudKitContainer?
 
     var body: some Scene {
         WindowGroup {
-            AppView(store: store)
-                .environment(\.managedObjectContext, persistence.container.viewContext)
+            if let container {
+                let coreDataClient = CoreDataClient(container: container)
+
+                // ✅ Main App
+                AppView(
+                    store: Store(
+                        initialState: AppFeature
+                            .State(context: container.viewContext),
+                        reducer: { AppFeature() }
+                    ) {
+                        $0.coreData = coreDataClient
+                    }
+                )
+                .environment(\.managedObjectContext, container.viewContext)
+
+            } else if let storedChoice = storedChoice {
+                // ✅ User already picked before → boot container immediately
+                ProgressView("Loading...")
+                    .task {
+                        container = PersistenceController(
+                            containerIdentifier: storedChoice.containerIdentifier
+                        ).container
+                    }
+
+            } else {
+                // ✅ Ask only once
+                StorageSelectionView { choice in
+                    saveChoice(choice)
+                    container = PersistenceController(
+                        containerIdentifier: choice.containerIdentifier
+                    ).container
+                }
+            }
         }
+    }
+
+    // MARK: - Helpers
+    private var storedChoice: StorageChoice? {
+        guard let raw = selectedStorageChoiceRaw else { return nil }
+        return StorageChoice(rawValue: raw)
+    }
+
+    private func saveChoice(_ choice: StorageChoice) {
+        selectedStorageChoiceRaw = choice.rawValue
     }
 }

@@ -14,25 +14,25 @@ struct MonthDetailView: View {
     @State private var showAdd = false
 
     var body: some View {
-        WithViewStore(store, observe: { $0 }) { vs in
+        WithViewStore(store, observe: { $0 }) { viewStore in
             List {
                 Section {
-                    SummaryHeader(monthID: vs.monthID)
+                    SummaryHeader(monthID: viewStore.monthID)
                 }
 
                 Section {
-                    ForEach(vs.entries, id: \.objectID) { entry in
+                    ForEach(viewStore.entries, id: \.objectID) { entry in
                         EntryRow(entry: entry)
                     }
-                    .onDelete { vs.send(.delete($0)) }
+                    .onDelete { viewStore.send(.delete($0)) }
                 }
             }
-            .navigationTitle("Month")
+            .navigationTitle(
+                "\(viewStore.month?.monthName ?? "Month") \(viewStore.month?.year?.year.description ?? "")"
+            )
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    sortMenu(vs: vs)
-                }
                 ToolbarItemGroup(placement: .navigationBarTrailing) {
+                    sortMenu(viewStore: viewStore)
                     Button { showAdd = true } label: {
                         Image(systemName: "plus.circle.fill")
                     }
@@ -41,27 +41,27 @@ struct MonthDetailView: View {
             .sheet(isPresented: $showAdd) {
                 AddEntryView(
                     store: Store(
-                        initialState: AddEntryFeature.State(monthID: vs.monthID)
+                        initialState: AddEntryFeature.State(monthID: viewStore.monthID)
                     ) {
                         AddEntryFeature()
                     }
                 )
             }
             .task {
-                vs.send(.load)
+                viewStore.send(.load)
             }
         }
     }
 
     // MARK: - Subviews
-    private func sortMenu(vs: ViewStore<MonthDetailFeature.State, MonthDetailFeature.Action>) -> some View {
+    private func sortMenu(viewStore: ViewStore<MonthDetailFeature.State, MonthDetailFeature.Action>) -> some View {
         // Break out binding explicitly
-        let binding = vs.binding(get: \.sort, send: MonthDetailFeature.Action.setSort)
+        let binding = viewStore.binding(get: \.sort, send: MonthDetailFeature.Action.setSort)
 
         return Menu {
             Picker("Sort", selection: binding) {
                 ForEach(EntrySort.allCases, id: \.self) { sort in
-                    Text(String(describing: sort)).tag(sort)
+                    Text(sort.description).tag(sort)
                 }
             }
         } label: {

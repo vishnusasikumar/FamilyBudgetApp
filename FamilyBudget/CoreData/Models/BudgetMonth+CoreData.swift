@@ -30,5 +30,5 @@ extension BudgetMonth {
             .reduce(0) { $0 + $1.amount }
     }
     var netBalance: Double { startingBalance + totalIncome - totalExpense - totalSavings }
-    var endingBalance: Double { netBalance }
+    var endingBalance: Double { startingBalance + totalIncome - totalExpense }
 }

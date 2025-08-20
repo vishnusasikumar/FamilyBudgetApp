@@ -11,12 +11,13 @@ import CoreData
 struct MonthDetailFeature: Reducer {
     struct State: Equatable {
         var monthID: NSManagedObjectID
+        var month: BudgetMonth?
         var entries: [Entry] = []
         var sort: EntrySort = .byDateDesc
     }
     enum Action: Equatable {
         case load
-        case entriesLoaded([Entry])
+        case monthLoaded(BudgetMonth, [Entry])
         case setSort(EntrySort)
         case delete(IndexSet)
         case addTapped
@@ -28,10 +29,12 @@ struct MonthDetailFeature: Reducer {
             switch action {
             case .load:
                 return .run { [id = state.monthID, sort = state.sort] send in
+                    let month = try await coreData.fetchMonthByID(id)          // fetch BudgetMonth
                     let list = try await coreData.entriesForMonth(id, sort)
-                    await send(.entriesLoaded(list))
+                    await send(.monthLoaded(month, list))
                 }
-            case .entriesLoaded(let list):
+            case .monthLoaded(let month, let list):
+                state.month = month
                 state.entries = list
                 return .none
             case .setSort(let sort):
@@ -76,6 +79,7 @@ extension MonthDetailFeature.State {
 
         return MonthDetailFeature.State(
             monthID: month.objectID,
+            month: month,
             entries: [groceries, salary, savings],
             sort: .byDateAsc
         )

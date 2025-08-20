@@ -23,8 +23,6 @@ struct MonthGridView: View {
                             VStack(alignment: .leading, spacing: 6) {
                                 Text(month.monthName)
                                     .font(.headline)
-                                Text(month.year?.year.description ?? "")
-                                    .font(.caption)
                                 Divider()
                                 VStack(alignment: .leading) {
                                     Text("Net: \(month.netBalance, format: .currency(code: Locale.current.currency?.identifier ?? "USD"))")
