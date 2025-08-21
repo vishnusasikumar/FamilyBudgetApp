@@ -22,4 +22,7 @@
         <attribute name="title" optional="YES" attributeType="String"/>
         <relationship name="month" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="BudgetMonth" inverseName="entries" inverseEntity="BudgetMonth"/>
     </entity>
+    <entity name="SharedRoot" representedClassName="SharedRoot" syncable="YES" codeGenerationType="class">
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+    </entity>
 </model>

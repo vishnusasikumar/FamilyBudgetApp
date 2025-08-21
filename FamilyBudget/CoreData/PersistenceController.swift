@@ -7,6 +7,7 @@
 
 import CoreData
 import SwiftUI
+import CloudKit
 
 enum StorageChoice: String {
     case privateICloud
@@ -18,6 +19,15 @@ enum StorageChoice: String {
         case .sharedICloud: return "iCloud.com.vvs.FamilyBudget.Shared"
         }
     }
+
+    var databaseScope: CKDatabase.Scope {
+        switch self {
+            case .privateICloud:
+                return .private
+            case .sharedICloud:
+                return .shared   // ✅ shared database instead of per-record sharing
+        }
+    }
 }
 
 struct PersistenceController {
@@ -26,7 +36,7 @@ struct PersistenceController {
 
     // MARK: - Preview
     static let preview: PersistenceController = {
-        let controller = PersistenceController(containerIdentifier: StorageChoice.privateICloud.containerIdentifier)
+        let controller = PersistenceController(choice: .privateICloud)
         let viewContext = controller.container.viewContext
 
         for _ in 0..<10 {
@@ -45,18 +55,25 @@ struct PersistenceController {
     }()
 
     // MARK: - Initialization
-    init(containerIdentifier: String) {
+    init(choice: StorageChoice = .privateICloud) {
         container = NSPersistentCloudKitContainer(name: "FamilyBudget")
 
         guard let storeDescription = container.persistentStoreDescriptions.first else {
             fatalError("Missing persistent store description")
         }
 
-        storeDescription.cloudKitContainerOptions = NSPersistentCloudKitContainerOptions(
-            containerIdentifier: containerIdentifier
+        let options = NSPersistentCloudKitContainerOptions(
+            containerIdentifier: choice.containerIdentifier
         )
+        options.databaseScope = choice.databaseScope   // ✅ private vs shared
+        storeDescription.cloudKitContainerOptions = options
+
         storeDescription.setOption(true as NSNumber, forKey: NSPersistentHistoryTrackingKey)
         storeDescription.setOption(true as NSNumber, forKey: NSPersistentStoreRemoteChangeNotificationPostOptionKey)
+
+        // Load the store synchronously so it completes before initializing the
+        // CloudKit schema.
+        storeDescription.shouldAddStoreAsynchronously = false
 
         container.loadPersistentStores { _, error in
             if let error = error as NSError? {
@@ -70,6 +87,6 @@ struct PersistenceController {
 
     // MARK: - Default Container
     static func defaultContainer(for choice: StorageChoice) -> NSPersistentCloudKitContainer {
-        PersistenceController(containerIdentifier: choice.containerIdentifier).container
+        PersistenceController(choice: choice).container
     }
 }

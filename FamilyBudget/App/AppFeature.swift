@@ -54,38 +54,38 @@ struct AppFeature {
 
         Reduce { state, action in
             switch action {
-                case .appStarted:
-                    state.isBootstrapped = false
-                    return .run { send in
-                        do {
-                            try await coreData.bootstrapCurrentMonth()
-                            let month = try await coreData.fetchCurrentMonth()
-                            await send(.bootstrapFinished(.success(month)))
-                        } catch {
-                            await send(.bootstrapFinished(.failure(error)))
-                        }
+            case .appStarted:
+                state.isBootstrapped = false
+                return .run { send in
+                    do {
+                        try await coreData.bootstrapCurrentMonth()
+                        let month = try await coreData.fetchCurrentMonth()
+                        await send(.bootstrapFinished(.success(month)))
+                    } catch {
+                        await send(.bootstrapFinished(.failure(error)))
                     }
+                }
 
-                case .bootstrapFinished(let result):
-                    state.isBootstrapped = true
-                    switch result {
-                        case .success(let currentMonth):
-                            state.path.append(.monthDetail(.init(monthID: currentMonth.objectID)))
-                        case .failure(let error):
-                            print("Bootstrap failed: \(error)")
-                    }
-                    return .none
+            case .bootstrapFinished(let result):
+                state.isBootstrapped = true
+                switch result {
+                case .success(let currentMonth):
+                    state.path.append(.monthDetail(.init(monthID: currentMonth.objectID)))
+                case .failure(let error):
+                    print("Bootstrap failed: \(error)")
+                }
+                return .none
 
-                case .yearList(.openMonthGrid(let yearID)):
-                    state.path.append(.monthGrid(.init(yearID: yearID)))
-                    return .none
+            case .yearList(.openMonthGrid(let yearID)):
+                state.path.append(.monthGrid(.init(yearID: yearID)))
+                return .none
 
-                case .path(.element(id: _, action: .monthGrid(.openMonth(let monthID)))):
-                    state.path.append(.monthDetail(.init(monthID: monthID)))
-                    return .none
+            case .path(.element(id: _, action: .monthGrid(.openMonth(let monthID)))):
+                state.path.append(.monthDetail(.init(monthID: monthID)))
+                return .none
 
-                case .yearList, .path:
-                    return .none
+            case .yearList, .path:
+                return .none
             }
         }
         .forEach(\.path, action: \.path) { Path() }

@@ -36,7 +36,7 @@ struct FamilyBudgetApp: App {
                 ProgressView("Loading...")
                     .task {
                         container = PersistenceController(
-                            containerIdentifier: storedChoice.containerIdentifier
+                            choice: storedChoice
                         ).container
                     }
 
@@ -45,7 +45,7 @@ struct FamilyBudgetApp: App {
                 StorageSelectionView { choice in
                     saveChoice(choice)
                     container = PersistenceController(
-                        containerIdentifier: choice.containerIdentifier
+                        choice: choice
                     ).container
                 }
             }
