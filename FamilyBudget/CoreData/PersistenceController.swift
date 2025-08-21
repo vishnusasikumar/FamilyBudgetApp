@@ -6,7 +6,6 @@
 //
 
 import CoreData
-import SwiftUI
 import CloudKit
 
 enum StorageChoice: String {
@@ -22,10 +21,8 @@ enum StorageChoice: String {
 
     var databaseScope: CKDatabase.Scope {
         switch self {
-            case .privateICloud:
-                return .private
-            case .sharedICloud:
-                return .shared   // ✅ shared database instead of per-record sharing
+        case .privateICloud: return .private
+        case .sharedICloud: return .shared
         }
     }
 }
@@ -56,7 +53,12 @@ struct PersistenceController {
 
     // MARK: - Initialization
     init(choice: StorageChoice = .privateICloud) {
-        container = NSPersistentCloudKitContainer(name: "FamilyBudget")
+        // Load the merged model (ensure no duplicates)
+        guard let model = NSManagedObjectModel.mergedModel(from: [Bundle.main]) else {
+            fatalError("Failed to load Core Data model")
+        }
+
+        container = NSPersistentCloudKitContainer(name: "FamilyBudget", managedObjectModel: model)
 
         guard let storeDescription = container.persistentStoreDescriptions.first else {
             fatalError("Missing persistent store description")
