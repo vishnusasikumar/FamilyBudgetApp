@@ -87,6 +87,29 @@ struct PersistenceController {
         container.viewContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
     }
 
+    /// Resets Core Data for UI tests
+    func resetForUITests() {
+        // Destroy existing stores
+        for store in container.persistentStoreCoordinator.persistentStores {
+            try? container.persistentStoreCoordinator.destroyPersistentStore(
+                at: store.url!,
+                ofType: store.type,
+                options: nil
+            )
+        }
+
+        // Recreate in-memory container
+        let description = NSPersistentStoreDescription()
+        description.type = NSInMemoryStoreType
+        container.persistentStoreDescriptions = [description]
+
+        container.loadPersistentStores { description, error in
+            if let error = error {
+                fatalError("Unresolved error \(error)")
+            }
+        }
+    }
+
     // MARK: - Default Container
     static func defaultContainer(for choice: StorageChoice) -> NSPersistentCloudKitContainer {
         PersistenceController(choice: choice).container

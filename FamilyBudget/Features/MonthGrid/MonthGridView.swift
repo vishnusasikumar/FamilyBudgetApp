@@ -23,6 +23,7 @@ struct MonthGridView: View {
                             VStack(alignment: .leading, spacing: 6) {
                                 Text(month.monthName)
                                     .font(.headline)
+                                    .accessibilityIdentifier("Month_\(month.monthIndex)")
                                 Divider()
                                 VStack(alignment: .leading) {
                                     Text("Net: \(month.netBalance, format: .currency(code: Locale.current.currency?.identifier ?? "USD"))")
@@ -39,6 +40,7 @@ struct MonthGridView: View {
                 }
                 .padding()
             }
+            .accessibilityIdentifier("MonthGridCollection")
             .navigationTitle(viewStore.months.first?.year?.year.description ?? "Year")
             .task { viewStore.send(.load) }
         }

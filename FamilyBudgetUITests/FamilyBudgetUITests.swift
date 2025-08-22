@@ -6,29 +6,104 @@
 //
 
 import XCTest
+import SwiftUI
+import ComposableArchitecture
+@testable import FamilyBudget
 
 final class FamilyBudgetUITests: XCTestCase {
 
+    var app: XCUIApplication!
+
     override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
-
-        // In UI tests it is usually best to stop immediately when a failure occurs.
         continueAfterFailure = false
-
-        // In UI tests it’s important to set the initial state - such as interface orientation - required for your tests before they run. The setUp method is a good place to do this.
+        app = XCUIApplication()
+        app.launchArguments = ["-UITestMode"]
+        app.launch()
     }
 
     override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
+        app = nil
     }
 
-    @MainActor
-    func testExample() throws {
-        // UI tests must launch the application that they test.
-        let app = XCUIApplication()
-        app.launch()
+    func testSelectingPrivateICloud_callsOnSelect() throws {
+        // Wait for StorageSelectionView buttons
+        let privateButton = app.buttons["Private iCloud"]
+        let sharedButton = app.buttons["Shared iCloud"]
 
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
+        XCTAssertTrue(privateButton.waitForExistence(timeout: 5), "Private iCloud button should appear on first launch")
+        XCTAssertTrue(sharedButton.waitForExistence(timeout: 5), "Shared iCloud button should appear on first launch")
+
+        // Simulate user selecting Private iCloud
+        privateButton.tap()
+
+        // After selection, main AppView should load
+        let mainTitle = app.staticTexts["Budgets"] // adjust if you have a different main title
+        XCTAssertTrue(mainTitle.waitForExistence(timeout: 5))
+    }
+
+    func testSelectingSharedICloud_callsOnSelectAndSharingFlow() throws {
+        let sharedButton = app.buttons["Shared iCloud"]
+        XCTAssertTrue(sharedButton.waitForExistence(timeout: 5))
+
+        sharedButton.tap()
+
+        // After selection, main AppView should load
+        let mainTitle = app.staticTexts["Budgets"] // adjust if you have a different main title
+        XCTAssertTrue(mainTitle.waitForExistence(timeout: 5))
+    }
+
+    func testAddYearAndVerifyMonths() throws {
+        try testSelectingPrivateICloud_callsOnSelect()
+
+        let yearList = app.collectionViews["YearListTable"]
+        XCTAssertTrue(yearList.waitForExistence(timeout: 5))
+
+        let addYearButton = app.buttons["AddYearButton"]
+        XCTAssertTrue(addYearButton.exists)
+        addYearButton.tap()
+
+        // Verify the year now exists in the list
+        let newYear = "2025"
+        let newYearButton = yearList.buttons["Year_\(newYear)"]
+        XCTAssertTrue(newYearButton.waitForExistence(timeout: 2))
+
+        // Tap on the new year to open its MonthGrid
+        newYearButton.tap()
+
+        // Verify all 12 months exist
+        let monthGrid = app.scrollViews["MonthGridCollection"]
+        XCTAssertTrue(monthGrid.waitForExistence(timeout: 2))
+
+        for monthIndex in 1...12 {
+            let monthCell = monthGrid.buttons["Month_\(monthIndex)"]
+            XCTAssertTrue(monthCell.exists, "Month \(monthIndex) should exist")
+        }
+
+        let firstMonthButton = monthGrid.buttons["Month_1"]
+        firstMonthButton.tap()
+
+        let monthDetailView = app.collectionViews["MonthDetailView"]
+        XCTAssertTrue(monthDetailView.waitForExistence(timeout: 2))
+    }
+
+    func testDeleteYear() throws {
+        try testSelectingSharedICloud_callsOnSelectAndSharingFlow()
+
+        let yearList = app.collectionViews["YearListTable"]
+        XCTAssertTrue(yearList.waitForExistence(timeout: 5))
+
+        let addYearButton = app.buttons["AddYearButton"]
+        XCTAssertTrue(addYearButton.exists)
+        addYearButton.tap()
+
+        // Swipe to delete first year
+        let firstYearCell = yearList.cells.firstMatch
+        XCTAssertTrue(firstYearCell.exists)
+        firstYearCell.swipeLeft()
+        app.buttons["Delete"].tap()
+
+        // Assert the cell is gone
+        XCTAssertFalse(firstYearCell.exists)
     }
 
     @MainActor

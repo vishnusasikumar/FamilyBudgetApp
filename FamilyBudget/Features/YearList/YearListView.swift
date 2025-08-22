@@ -18,10 +18,12 @@ struct YearListView: View {
                     Button(year.year.description) {
                         viewState.send(.openMonthGrid(year.objectID))
                     }
+                    .accessibilityIdentifier("Year_\(year.year)")
                 }.onDelete {
                     viewState.send(.delete($0))
                 }
             }
+            .accessibilityIdentifier("YearListTable")
             .navigationTitle("Budgets")
             .toolbar {
                 Button {
@@ -30,6 +32,7 @@ struct YearListView: View {
                 } label: {
                     Image(systemName: "plus")
                 }
+                .accessibilityIdentifier("AddYearButton")
             }
             .task {
                 viewState.send(.load)

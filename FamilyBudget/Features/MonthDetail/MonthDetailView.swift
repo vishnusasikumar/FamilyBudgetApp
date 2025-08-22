@@ -26,6 +26,7 @@ struct MonthDetailView: View {
                     .onDelete { viewStore.send(.delete($0)) }
                 }
             }
+            .accessibilityIdentifier("MonthDetailView")
             .navigationTitle(
                 "\(viewStore.month?.monthName ?? "Month") \(viewStore.month?.year?.year.description ?? "")"
             )
