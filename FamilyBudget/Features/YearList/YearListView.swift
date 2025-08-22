@@ -25,7 +25,8 @@ struct YearListView: View {
             .navigationTitle("Budgets")
             .toolbar {
                 Button {
-                    viewState.send(.addYear)
+                    let current = Int64(Calendar.current.component(.year, from: Date()))
+                    viewState.send(.addYear(current))
                 } label: {
                     Image(systemName: "plus")
                 }

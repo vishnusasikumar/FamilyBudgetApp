@@ -11,7 +11,13 @@ import CoreData
 struct AddEntryFeature: Reducer {
     struct State: Equatable {
         var monthID: NSManagedObjectID
-        var model = NewEntry()
+        var model: NewEntry
+
+        // Convenience init for testing
+        init(monthID: NSManagedObjectID, model: NewEntry = NewEntry()) {
+            self.monthID = monthID
+            self.model = model
+        }
     }
     enum Action: Equatable {
         case setTitle(String), setAmount(Double), setDate(Date), setKind(EntryKind), setNote(String), setCarryover(Bool)

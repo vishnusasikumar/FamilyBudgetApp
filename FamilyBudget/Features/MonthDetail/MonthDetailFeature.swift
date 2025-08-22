@@ -8,23 +8,28 @@
 import ComposableArchitecture
 import CoreData
 
-struct MonthDetailFeature: Reducer {
-    struct State: Equatable {
+@Reducer
+struct MonthDetailFeature {
+    struct State {
         var monthID: NSManagedObjectID
         var month: BudgetMonth?
         var entries: [Entry] = []
         var sort: EntrySort = .byDateDesc
+        @BindingState var showAdd = false
     }
-    enum Action: Equatable {
+
+    enum Action: BindableAction, Equatable {
         case load
         case monthLoaded(BudgetMonth, [Entry])
         case setSort(EntrySort)
         case delete(IndexSet)
         case addTapped
+        case binding(BindingAction<State>)
     }
     @Dependency(\.coreData) var coreData
 
     var body: some ReducerOf<Self> {
+        BindingReducer()
         Reduce { state, action in
             switch action {
             case .load:
@@ -45,9 +50,21 @@ struct MonthDetailFeature: Reducer {
                 return .run { _ in try await coreData.deleteEntries(ids) }
                     .concatenate(with: .send(.load))
             case .addTapped:
+                state.showAdd = true
+                return .none
+            case .binding:
                 return .none
             }
         }
+    }
+}
+
+extension MonthDetailFeature.State: Equatable {
+    static func == (lhs: MonthDetailFeature.State, rhs: MonthDetailFeature.State) -> Bool {
+        lhs.monthID == rhs.monthID &&
+        lhs.sort == rhs.sort &&
+        lhs.showAdd == rhs.showAdd &&
+        lhs.entries.count == rhs.entries.count
     }
 }
 

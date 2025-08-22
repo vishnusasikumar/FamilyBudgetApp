@@ -15,7 +15,7 @@ struct YearListFeature: Reducer {
     enum Action: Equatable {
         case load
         case yearsLoaded([BudgetYear])
-        case addYear
+        case addYear(Int64)
         case delete(IndexSet)
         case openMonthGrid(NSManagedObjectID)
     }
@@ -32,10 +32,9 @@ struct YearListFeature: Reducer {
             case .yearsLoaded(let ys):
                 state.years = ys
                 return .none
-            case .addYear:
+            case .addYear(let year):
                 return .run { send in
-                    let current = Int64(Calendar.current.component(.year, from: Date()))
-                    _ = try await coreData.addYearIfNeeded(current)
+                    _ = try await coreData.addYearIfNeeded(year)
                     await send(.load)
                 }
             case .delete(let offsets):

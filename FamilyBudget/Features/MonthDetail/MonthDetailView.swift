@@ -11,7 +11,6 @@ import CoreData
 
 struct MonthDetailView: View {
     let store: StoreOf<MonthDetailFeature>
-    @State private var showAdd = false
 
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
@@ -33,12 +32,12 @@ struct MonthDetailView: View {
             .toolbar {
                 ToolbarItemGroup(placement: .navigationBarTrailing) {
                     sortMenu(viewStore: viewStore)
-                    Button { showAdd = true } label: {
+                    Button { viewStore.send(.addTapped) } label: {
                         Image(systemName: "plus.circle.fill")
                     }
                 }
             }
-            .sheet(isPresented: $showAdd) {
+            .sheet(isPresented: viewStore.$showAdd) {
                 AddEntryView(
                     store: Store(
                         initialState: AddEntryFeature.State(monthID: viewStore.monthID)

@@ -8,7 +8,7 @@
 import CoreData
 import CloudKit
 
-enum StorageChoice: String {
+public enum StorageChoice: String {
     case privateICloud
     case sharedICloud
 

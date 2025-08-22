@@ -7,7 +7,6 @@
 
 import SwiftUI
 import CloudKit
-import SwiftUI
 
 final class IdentifiableSharingController: NSObject, Identifiable {
     let id = UUID()
